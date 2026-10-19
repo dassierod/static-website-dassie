@@ -50,5 +50,22 @@ pipeline {
                 '''
             }
         }
+stage('Artifact') {
+    steps {
+        sh '''
+            mkdir -p artifacts
+
+            echo "Application: static-website-dassie" > artifacts/build-info.txt
+            echo "Build number: ${BUILD_NUMBER}" >> artifacts/build-info.txt
+            echo "Git commit: ${GIT_COMMIT}" >> artifacts/build-info.txt
+            echo "Docker image: static-website-dassie:ci" >> artifacts/build-info.txt
+
+            docker image inspect static-website-dassie:ci \
+                --format '{{.Id}}' > artifacts/image-id.txt
+        '''
+
+        archiveArtifacts artifacts: 'artifacts/*.txt', fingerprint: true
+    }
+}
     }
 }
